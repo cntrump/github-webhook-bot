@@ -15,6 +15,15 @@ func routes(_ app: Application) throws {
             throw Abort(.badRequest)
         }
 
+        // Check if secret protected Server
+        if let secret = Environment.get(Environment.secret.name)  {
+            guard let signature = req.headers.first(name: "X-Hub-Signature-256"),
+                  let bodyData = req.body.data,
+                  GitHubHandler.verifySignature(signature, for: Data(buffer: bodyData), secret: secret) else {
+                      throw Abort(.badRequest)
+                  }
+        }
+
         guard let botId = req.query[String.self, at: "id"] else {
             throw Abort(.badRequest)
         }

@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import Crypto
 
 extension Request {
     func getBodyJsonObject() throws -> [String: Any]? {
@@ -42,6 +43,22 @@ struct GitHubHandler {
         }
 
         return markdown
+    }
+}
+
+extension GitHubHandler {
+
+    static func verifySignature(_ signature: String, for payload: Data, secret token: String) -> Bool {
+        guard let tokenData = token.data(using: .utf8) else {
+            return false
+        }
+
+        let key = SymmetricKey(data: tokenData)
+        let data = Data(HMAC<SHA256>.authenticationCode(for: payload, using: key))
+        let hexdigest = data.hexEncodedString(uppercase: false)
+        let payloadSignature = "sha256=" + hexdigest
+
+        return signature.elementsEqual(payloadSignature)
     }
 }
 
