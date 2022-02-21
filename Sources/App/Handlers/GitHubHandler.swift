@@ -216,9 +216,11 @@ extension GitHubHandler {
                   throw Abort(.badRequest)
               }
 
+        let conclusion = job["conclusion"] as? String
+
         var markdown = """
         # \(repository)
-        Workflow job: [\(jobName)](\(url))
+        Workflow job `\(conclusion ?? status)`: [\(jobName)](\(url))
         status: `\(status)`
         """
 
@@ -226,7 +228,9 @@ extension GitHubHandler {
             markdown += "\nsteps:\n"
 
             for step in steps {
-                markdown += "`\(step["status"] as! String)`: \(step["name"] as! String)\n"
+                let status = step["status"] as? String
+                let conclusion = step["conclusion"] as? String
+                markdown += "`\(conclusion ?? status!)`: \(step["name"] as! String)\n"
             }
 
             markdown.removeLast(1) // remove "\n" at last
@@ -250,9 +254,11 @@ extension GitHubHandler {
                   throw Abort(.badRequest)
               }
 
+        let conclusion = run["conclusion"] as? String
+
         let markdown = """
         # \(repository)
-        Workflow run: [\(runName)](\(url))
+        Workflow run `\(conclusion ?? status)`: [\(runName)](\(url))
         status: `\(status)`
         """
 
