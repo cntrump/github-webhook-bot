@@ -10,7 +10,7 @@ func routes(_ app: Application) throws {
     }
 
     /// route /github/wework?id=
-    app.post("github", "wework") { req async throws -> String in
+    app.post("github", "wework") { req throws -> String in
         guard let botId = req.query[String.self, at: "id"] else {
             throw Abort(.badRequest)
         }
@@ -18,6 +18,6 @@ func routes(_ app: Application) throws {
         let markdown = try GitHubHandler.handleEvents(req)
         let bot = WeWorkBot(key: botId, markdown: markdown, logger: req.logger)
 
-        return try await bot.send()
+        return try bot.send()
     }
 }
