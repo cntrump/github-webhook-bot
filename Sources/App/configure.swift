@@ -38,7 +38,8 @@ public func configure(_ app: Application) throws {
             requestDecompression: .enabled(limit: .size(1024)),
             supportVersions: Set<HTTPVersionMajor>([ .one, .two ]),
             tlsConfiguration: tlsConfig,
-            serverName: Environment.get(Environment.cert_host.name)
+            serverName: Environment.get(Environment.cert_host.name),
+            shutdownTimeout: .seconds(60)
         )
     }
 
