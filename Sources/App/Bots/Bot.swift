@@ -65,6 +65,7 @@ class WeWorkBot: Bot {
             let task = URLSession.shared.dataTask(with: req) { data, resp, error in
                 if let error = error {
                     continuation.resume(throwing: error)
+                    return
                 }
 
                 continuation.resume(returning: data ?? Data())
