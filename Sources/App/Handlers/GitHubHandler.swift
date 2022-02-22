@@ -78,7 +78,7 @@ struct GitHubHandler {
             return try GitHubHandler.handleWorkflowRun(req)
 
         default:
-            throw Abort(.notImplemented, reason: "Event: \(e.rawValue)")
+            throw Abort(.notImplemented, reason: "Not implemented Event: \(e.rawValue)")
         }
     }
 }
