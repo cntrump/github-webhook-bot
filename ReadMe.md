@@ -168,3 +168,20 @@ Reload the unit file and restart service:
 $ systemctl daemon-reload
 $ systemctl restart github-webhook-bot
 ```
+
+## Run as a standalone HTTPS server
+
+Setup SSL certificate:
+
+```
+export CERT_FULLCHAIN=/etc/letsencrypt/live/{your_server}/fullchain.pem
+export CERT_PRIVKEY=/etc/letsencrypt/live/{your_server}/privkey.pem
+```
+
+Or edit `github-webhook-bot.service`:
+
+```ini
+[Service]
+Environment="CERT_FULLCHAIN=/etc/letsencrypt/live/{your_server}/fullchain.pem"
+Environment="CERT_PRIVKEY=/etc/letsencrypt/live/{your_server}/privkey.pem"
+```
