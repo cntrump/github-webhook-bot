@@ -84,4 +84,20 @@ extension GitHubHandler {
 
         return markdown
     }
+
+    static func handlePullRequestReviewThread(_ req: Request) throws -> String {
+        let payload = try req.content.decode(GHPullRequestReviewThreadPayload.self)
+        let action = payload.action
+        let pr = payload.pullRequest
+        let repo = payload.repository
+
+        let markdown = """
+        # \(repo.fullName)
+        Review thread `\(action)`: [\(pr.title)(#\(pr.number))](\(pr.htmlUrl))
+        \(pr.base.ref) ← \(pr.head.ref)
+        user: \(pr.user.login)
+        """
+
+        return markdown
+    }
 }

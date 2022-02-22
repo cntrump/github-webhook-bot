@@ -71,6 +71,9 @@ struct GitHubHandler {
         case .pull_request_review_comment:
             return try GitHubHandler.handlePullRequestReviewComment(req)
 
+        case .pull_request_review_thread:
+            return try GitHubHandler.handlePullRequestReviewThread(req)
+
         case .workflow_job:
             return try GitHubHandler.handleWorkflowJob(req)
 

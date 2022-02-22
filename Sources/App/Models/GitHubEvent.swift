@@ -83,6 +83,8 @@ enum GitHubEvent: String {
 
     case pull_request_review_comment
 
+    case pull_request_review_thread
+
     case push
 
     case release

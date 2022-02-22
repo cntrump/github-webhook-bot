@@ -20,6 +20,7 @@ enum GitHubAction: String, Decodable {
     case opened
     case ready_for_review
     case reopened
+    case resolved
     case review_request_removed
     case review_requested
     /// Triggered when a pull request's head branch is updated. For example, when the head branch is updated from the base branch, when new commits are pushed to the head branch, or when the base branch is changed.
