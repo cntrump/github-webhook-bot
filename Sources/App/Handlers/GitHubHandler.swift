@@ -77,6 +77,9 @@ struct GitHubHandler {
         case .workflow_run:
             return try GitHubHandler.handleWorkflowRun(req)
 
+        case .issues:
+            return try GitHubHandler.handleIssues(req)
+
         case .issue_comment:
             return try GitHubHandler.handleIssueComment(req)
 
@@ -316,6 +319,31 @@ extension GitHubHandler {
 
 extension GitHubHandler {
 
+    static func handleIssues(_ req: Request) throws -> String {
+        guard let jsonObject = try req.getBodyJsonObject(),
+              let action = jsonObject["action"] as? String,
+              let _ = GitHubAction(rawValue: action),
+              let repository = (jsonObject["repository"] as? [String: Any])?["full_name"] as? String else {
+                  throw Abort(.badRequest)
+              }
+
+        guard let issue = jsonObject["issue"] as? [String: Any],
+              let number = issue["number"] as? Int,
+              let url = issue["html_url"] as? String,
+              let title = issue["title"] as? String,
+              let user = (issue["user"] as? [String: Any])?["login"] as? String else {
+                  throw Abort(.badRequest)
+              }
+
+        let markdown = """
+        # \(repository)
+        Issue `\(action)`: [\(title)(#\(number))](\(url))
+        user: \(user)
+        """
+
+        return markdown
+    }
+
     static func handleIssueComment(_ req: Request) throws -> String {
         guard let jsonObject = try req.getBodyJsonObject(),
               let action = jsonObject["action"] as? String,
@@ -330,15 +358,17 @@ extension GitHubHandler {
                   throw Abort(.badRequest)
               }
 
+        let pr = issue["pull_request"] as? [String: Any]
+
         guard let comment = jsonObject["comment"] as? [String: Any],
-              let url = issue["html_url"] as? String,
+              let url = comment["html_url"] as? String,
               let user = (comment["user"] as? [String: Any])?["login"] as? String else {
             throw Abort(.badRequest)
         }
 
         let markdown = """
         # \(repository)
-        Issue comment `\(action)`: [\(title)(#\(number))](\(url))
+        \(pr != nil ? "Pull request" : "Issue" ) comment `\(action)`: [\(title)(#\(number))](\(url))
         user: \(user)
         """
 
