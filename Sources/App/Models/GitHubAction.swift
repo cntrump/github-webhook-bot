@@ -1,13 +1,13 @@
 //
 //  GitHubAction.swift
-//  
+//
 //
 //  Created by lvv.me on 2022/2/19.
 //
 
 import Foundation
 
-enum GitHubAction: String {
+enum GitHubAction: String, Decodable {
     case assigned
     case auto_merge_disabled
     case auto_merge_enabled

@@ -25,6 +25,11 @@ extension Environment {
 
 // configures your application
 public func configure(_ app: Application) throws {
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    decoder.dateDecodingStrategy = .iso8601
+    ContentConfiguration.global.use(decoder: decoder, for: .json)
+
     app.routes.defaultMaxBodySize = "512kb"
 
     if let fullchain = Environment.get(Environment.cert_fullchain.name),
