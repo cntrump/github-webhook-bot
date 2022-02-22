@@ -77,6 +77,9 @@ struct GitHubHandler {
         case .workflow_run:
             return try GitHubHandler.handleWorkflowRun(req)
 
+        case .issue_comment:
+            return try GitHubHandler.handleIssueComment(req)
+
         default:
             throw Abort(.notImplemented, reason: "Not implemented Event: \(e.rawValue)")
         }
@@ -136,7 +139,6 @@ extension GitHubHandler {
             return "Ignored draft, action: \(act.rawValue), number: \(number)"
         }
 
-        let _ = pr["body"] as? String
         let mergedBy = (pr["merged_by"] as? [String: Any])?["login"] as? String
 
         if state.elementsEqual("closed"), merged {
@@ -214,10 +216,8 @@ extension GitHubHandler {
     static func handlePullRequestReviewComment(_ req: Request) throws -> String {
         guard let jsonObject = try req.getBodyJsonObject(),
               let action = jsonObject["action"] as? String,
-              let comment = jsonObject["comment"] as? [String: Any],
               let pr = jsonObject["pull_request"] as? [String: Any],
               let number = pr["number"] as? Int,
-              let url = pr["html_url"] as? String,
               let title = pr["title"] as? String,
               let repository = (jsonObject["repository"] as? [String: Any])?["full_name"] as? String else {
                   throw Abort(.badRequest)
@@ -230,16 +230,17 @@ extension GitHubHandler {
                   throw Abort(.badRequest)
               }
 
-        guard let user = (comment["user"] as? [String: Any])?["login"] as? String,
-              let _ = comment["body"] else {
+        guard let comment = jsonObject["comment"] as? [String: Any],
+              let url = comment["html_url"] as? String,
+              let user = (comment["user"] as? [String: Any])?["login"] as? String else {
                   throw Abort(.badRequest)
               }
 
         let markdown = """
         # \(repository)
-        Review comment: [\(title)(#\(number))](\(url))
+        Review comment `\(action)`: [\(title)(#\(number))](\(url))
         \(baseRef) ← \(headRef)
-        user: \(user) `\(action)`
+        user: \(user)
         """
 
         return markdown
@@ -307,6 +308,38 @@ extension GitHubHandler {
         # \(repository)
         Workflow run `\(conclusion ?? status)`: [\(runName)](\(url))
         status: `\(status)`
+        """
+
+        return markdown
+    }
+}
+
+extension GitHubHandler {
+
+    static func handleIssueComment(_ req: Request) throws -> String {
+        guard let jsonObject = try req.getBodyJsonObject(),
+              let action = jsonObject["action"] as? String,
+              let _ = GitHubAction(rawValue: action),
+              let repository = (jsonObject["repository"] as? [String: Any])?["full_name"] as? String else {
+                  throw Abort(.badRequest)
+              }
+
+        guard let issue = jsonObject["issue"] as? [String: Any],
+              let number = issue["number"] as? Int,
+              let title = issue["title"] as? String else {
+                  throw Abort(.badRequest)
+              }
+
+        guard let comment = jsonObject["comment"] as? [String: Any],
+              let url = issue["html_url"] as? String,
+              let user = (comment["user"] as? [String: Any])?["login"] as? String else {
+            throw Abort(.badRequest)
+        }
+
+        let markdown = """
+        # \(repository)
+        Issue comment `\(action)`: [\(title)(#\(number))](\(url))
+        user: \(user)
         """
 
         return markdown

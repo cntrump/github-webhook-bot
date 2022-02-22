@@ -53,10 +53,17 @@ class WeWorkBot: Bot {
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
         req.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
         req.httpBody = body
-        
+
+        let logger = logger
         let task = URLSession.shared.dataTask(with: req) { data, resp, error in
             if let error = error {
-                self.logger?.error("\(error)")
+                logger?.error("\(error)")
+                return
+            }
+
+            if let data = data, let result = String(data: data, encoding: .utf8) {
+                logger?.info("\(result)")
+                return
             }
         }
 
