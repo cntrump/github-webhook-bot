@@ -8,6 +8,19 @@
 import Vapor
 import Crypto
 
+private func verifySignature(_ signature: String, for payload: Data, secret token: String) -> Bool {
+    guard let tokenData = token.data(using: .utf8) else {
+        return false
+    }
+
+    let key = SymmetricKey(data: tokenData)
+    let data = Data(HMAC<SHA256>.authenticationCode(for: payload, using: key))
+    let hexdigest = data.hexEncodedString(uppercase: false)
+    let payloadSignature = "sha256=" + hexdigest
+
+    return signature.elementsEqual(payloadSignature)
+}
+
 extension Request {
     func getBodyJsonObject() throws -> [String: Any]? {
         guard let bodyData = body.data else {
@@ -23,6 +36,54 @@ extension Request {
 }
 
 struct GitHubHandler {
+
+    static func handleEvents(_ req: Request) throws -> String {
+        guard let event = req.headers.first(name: "X-GitHub-Event"),
+              let e = GitHubEvent(rawValue: event) else {
+                  throw Abort(.badRequest)
+              }
+
+        guard req.body.data != nil else {
+            throw Abort(.badRequest, reason: "Body is empty.")
+        }
+
+        // Check if secret protected Server
+        if let secret = Environment.get(Environment.secret.name) {
+            guard let signature = req.headers.first(name: "X-Hub-Signature-256"),
+                  let bodyData = req.body.data,
+                  verifySignature(signature, for: Data(buffer: bodyData), secret: secret) else {
+                      let error = Abort(.badRequest, reason: "Signature is not match for secret.")
+                      req.application.logger.error(Logger.Message(stringLiteral: error.description))
+                      throw error
+                  }
+        }
+        
+        switch e {
+        case .ping:
+            return try GitHubHandler.handlePing(req)
+
+        case .pull_request:
+            return try GitHubHandler.handlePullRequest(req)
+
+        case .pull_request_review:
+            return try GitHubHandler.handlePullRequestReview(req)
+
+        case .pull_request_review_comment:
+            return try GitHubHandler.handlePullRequestReviewComment(req)
+
+        case .workflow_job:
+            return try GitHubHandler.handleWorkflowJob(req)
+
+        case .workflow_run:
+            return try GitHubHandler.handleWorkflowRun(req)
+
+        default:
+            throw Abort(.notImplemented)
+        }
+    }
+}
+
+extension GitHubHandler {
 
     static func handlePing(_ req: Request) throws -> String {
         guard let jsonObject = try req.getBodyJsonObject(),
@@ -43,22 +104,6 @@ struct GitHubHandler {
         }
 
         return markdown
-    }
-}
-
-extension GitHubHandler {
-
-    static func verifySignature(_ signature: String, for payload: Data, secret token: String) -> Bool {
-        guard let tokenData = token.data(using: .utf8) else {
-            return false
-        }
-
-        let key = SymmetricKey(data: tokenData)
-        let data = Data(HMAC<SHA256>.authenticationCode(for: payload, using: key))
-        let hexdigest = data.hexEncodedString(uppercase: false)
-        let payloadSignature = "sha256=" + hexdigest
-
-        return signature.elementsEqual(payloadSignature)
     }
 }
 
@@ -101,8 +146,8 @@ extension GitHubHandler {
         var markdown = """
         # \(repository)
         Pull request: `\(state)` [\(title)(#\(number))](\(url))
-        \(baseRef) `<-` \(headRef)
-        user: \(user) `\(action)`
+        \(baseRef) ← \(headRef)
+        user: \(user)
         """
 
         if act == .review_requested, let reviewers = pr["requested_reviewers"] as? [[String: Any]] {
@@ -123,7 +168,9 @@ extension GitHubHandler {
         }
 
         if merged, let mergedBy = mergedBy {
-            markdown += "\nby \(mergedBy)"
+            markdown += "\n`\(action)` by \(mergedBy)"
+        } else {
+            markdown += " `\(action)`"
         }
 
         return markdown
@@ -157,7 +204,7 @@ extension GitHubHandler {
         let markdown = """
         # \(repository)
         Review: `\(state)` [\(title)(#\(number))](\(url))
-        \(baseRef) `<-` \(headRef)
+        \(baseRef) ← \(headRef)
         user: \(user) `\(action)`
         """
 
@@ -191,7 +238,7 @@ extension GitHubHandler {
         let markdown = """
         # \(repository)
         Review comment: [\(title)(#\(number))](\(url))
-        \(baseRef) `<-` \(headRef)
+        \(baseRef) ← \(headRef)
         user: \(user) `\(action)`
         """
 

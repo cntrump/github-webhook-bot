@@ -42,6 +42,8 @@ public func configure(_ app: Application) throws {
         )
     }
 
+    app.middleware.use(GitHubMiddleware())
+
     // register routes
     try routes(app)
 }
