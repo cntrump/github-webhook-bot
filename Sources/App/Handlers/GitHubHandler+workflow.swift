@@ -9,6 +9,20 @@ import Vapor
 
 extension GitHubHandler {
 
+    static func handleCheckSuite(_ req: Request) throws -> String {
+        let payload = try req.content.decode(GHCheckSuitePayload.self)
+        let suite = payload.checkSuite
+        let repo = payload.repository
+
+        let markdown = """
+        # \(repo.fullName)
+        Check suite `\(suite.conclusion ?? suite.status)`: \(suite.headBranch)
+        status: `\(suite.status)`
+        """
+
+        return markdown
+    }
+
     static func handleWorkflowJob(_ req: Request) throws -> String {
         let payload = try req.content.decode(GHWorkflowJobPayload.self)
         let job = payload.workflowJob

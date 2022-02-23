@@ -80,6 +80,9 @@ struct GitHubHandler {
         case .pull_request_review_thread:
             return try GitHubHandler.handlePullRequestReviewThread(req)
 
+        case .check_suite:
+            return try GitHubHandler.handleCheckSuite(req)
+
         case .workflow_job:
             return try GitHubHandler.handleWorkflowJob(req)
 
