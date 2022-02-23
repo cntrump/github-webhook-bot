@@ -40,12 +40,23 @@ $ mkdir /opt/swift
 $ mv usr /opt/swift/
 ```
 
-Add to PATH of system:
+Add to PATH of system (Debian or Ubuntu):
+
+Bash / sh
 
 ```
 echo 'SWIFT_HOME=/opt/swift' > /etc/profile.d/swift.sh
 echo 'PATH=$SWIFT_HOME/bin:$PATH' >> /etc/profile.d/swift.sh
 ```
+
+ZSH
+
+```
+echo 'SWIFT_HOME=/opt/swift' >> /etc/zsh/zprofile
+echo 'PATH=$SWIFT_HOME/bin:$PATH' >> /etc/zsh/zprofile
+```
+
+Relogin to take effect.
 
 Test Swift:
 
