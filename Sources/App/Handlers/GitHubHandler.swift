@@ -62,6 +62,12 @@ struct GitHubHandler {
         case .ping:
             return try GitHubHandler.handlePing(req)
 
+        case .push:
+            return try GitHubHandler.handlePush(req)
+
+        case .delete:
+            return try GitHubHandler.handleDelete(req)
+
         case .pull_request:
             return try GitHubHandler.handlePullRequest(req)
 
