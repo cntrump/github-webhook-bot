@@ -49,6 +49,8 @@ public func configure(_ app: Application) throws {
 
     app.middleware.use(GitHubMiddleware())
 
+    app.logger.notice("Server version: \(version)")
+
     // register routes
     try routes(app)
 }
