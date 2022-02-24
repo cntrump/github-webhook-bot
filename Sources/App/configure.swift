@@ -48,6 +48,7 @@ public func configure(_ app: Application) throws {
     }
 
     app.middleware.use(GitHubMiddleware())
+    app.middleware.use(ResponseMiddleware())
 
     app.logger.notice("Server version: \(version)")
 
