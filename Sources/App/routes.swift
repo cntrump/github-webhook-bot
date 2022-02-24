@@ -20,4 +20,32 @@ func routes(_ app: Application) throws {
 
         return try bot.send()
     }
+
+    /// route /github/larker?id=
+    app.post("github", "larker") { req throws -> String in
+        guard let botId = req.query[String.self, at: "id"] else {
+            throw Abort(.badRequest)
+        }
+
+        let secret = req.query[String.self, at: "secret"]
+
+        let markdown = try GitHubHandler.handleEvents(req)
+        let bot = LarkerBot(id: botId, markdown: markdown, secret: secret)
+
+        return try bot.send()
+    }
+
+    /// route /github/dingtalk?id=
+    app.post("github", "dingtalk") { req throws -> String in
+        guard let botId = req.query[String.self, at: "id"] else {
+            throw Abort(.badRequest)
+        }
+
+        let secret = req.query[String.self, at: "secret"]
+
+        let markdown = try GitHubHandler.handleEvents(req)
+        let bot = DingTalkBot(token: botId, markdown: markdown, secret: secret)
+
+        return try bot.send()
+    }
 }
