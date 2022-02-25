@@ -65,6 +65,9 @@ struct GitHubHandler {
         case .push:
             return try GitHubHandler.handlePush(req)
 
+        case .create:
+            return try GitHubHandler.handleCreate(req)
+
         case .delete:
             return try GitHubHandler.handleDelete(req)
 
@@ -82,6 +85,9 @@ struct GitHubHandler {
 
         case .check_suite:
             return try GitHubHandler.handleCheckSuite(req)
+
+        case .check_run:
+            return try GitHubHandler.handleCheckRun(req)
 
         case .workflow_job:
             return try GitHubHandler.handleWorkflowJob(req)

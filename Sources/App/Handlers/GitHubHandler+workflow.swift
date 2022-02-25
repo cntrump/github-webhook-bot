@@ -23,6 +23,22 @@ extension GitHubHandler {
         return markdown
     }
 
+    static func handleCheckRun(_ req: Request) throws -> String {
+        let payload = try req.content.decode(GHCheckRunPayload.self)
+        let run = payload.checkRun
+        let suite = run.checkSuite
+        let repo = payload.repository
+
+        let markdown = """
+        # \(repo.fullName)
+        Check run `\(run.conclusion ?? run.status)`: [\(run.name)](\(run.htmlUrl))
+        branch: \(suite.headBranch)
+        status: `\(run.status)`
+        """
+
+        return markdown
+    }
+
     static func handleWorkflowJob(_ req: Request) throws -> String {
         let payload = try req.content.decode(GHWorkflowJobPayload.self)
         let job = payload.workflowJob
