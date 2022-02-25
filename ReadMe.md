@@ -6,6 +6,8 @@ Supported OS: macOS 10.15, Debian 11, Ubuntu 20
 
 Required Swift 5.4+
 
+Latest release: [releases](https://github.com/cntrump/github-webhook-bot/releases)
+
 ## Setup Swift environment on Debian
 
 Debian OS version: `11.2`
