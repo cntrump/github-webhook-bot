@@ -62,6 +62,9 @@ struct GitHubHandler {
         case .ping:
             return try GitHubHandler.handlePing(req)
 
+        case .release:
+            return try GitHubHandler.handleRelease(req)
+
         case .push:
             return try GitHubHandler.handlePush(req)
 
