@@ -14,7 +14,7 @@ extension GitHubHandler {
         let repo = payload.repository
 
         let markdown = """
-        # [\(repo.fullName)](\(repo.htmlUrl))
+        # \(repo.fullName)
         Created new \(payload.refType): \(payload.ref)
         from: \(payload.masterBranch)
         user: \(payload.sender.login)

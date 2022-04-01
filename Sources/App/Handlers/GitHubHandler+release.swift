@@ -16,7 +16,7 @@ extension GitHubHandler {
         let repo = payload.repository
 
         let markdown = """
-        # [\(repo.fullName)](\(repo.htmlUrl))
+        # \(repo.fullName)
         Release `\(action)`: \(release.tagName)
         from: \(release.targetCommitish)
         user: \(release.author.login)

@@ -14,7 +14,7 @@ extension GitHubHandler {
         let repo = payload.repository
 
         let markdown = """
-        # [\(repo.fullName)](\(repo.htmlUrl))
+        # \(repo.fullName)
         \(payload.refType) `deleted`: \(payload.ref)
         user: \(payload.sender.login)
         """

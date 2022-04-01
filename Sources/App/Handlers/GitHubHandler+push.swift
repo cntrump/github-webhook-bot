@@ -14,7 +14,7 @@ extension GitHubHandler {
         let repo = payload.repository
 
         var markdown = """
-        # [\(repo.fullName)](\(repo.htmlUrl))
+        # \(repo.fullName)
         Push: [\(payload.ref)](\(payload.compare))
         user: \(payload.pusher.name)
         """

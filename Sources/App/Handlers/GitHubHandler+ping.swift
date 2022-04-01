@@ -14,7 +14,7 @@ extension GitHubHandler {
         let repo = payload.repository
 
         var markdown = """
-        # [\(repo.fullName)](\(repo.htmlUrl))
+        # \(repo.fullName)
         zen: \(payload.zen)
         """
 
