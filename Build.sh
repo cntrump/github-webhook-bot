@@ -2,5 +2,7 @@
 
 set -e
 
-swift build -c release -Xswiftc -static-stdlib
-
+swift build -c release \
+            -Xswiftc -static-stdlib \
+            -Xswiftc -Xfrontend \
+            -Xswiftc -enable-copy-propagation
